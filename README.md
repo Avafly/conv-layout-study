@@ -1,8 +1,8 @@
 # conv-layout-study
 
-This repo studies the convolutional layer's performance under NCHW and NHWC layouts. The convolutional layer is composed of [im2col](https://caffe.berkeleyvision.org/tutorial/convolution.html) and [GEMM](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3). Since the optimized GEMM can reach the CPU's peak performance in most cases, the main focus of this study is im2col. The test devices are a RPi 4B and a VPS with the Intel Xeon Platinum processor.
+NCHW and NHWC are data layouts that specify how tensors are stored in memory. PyTorch defaults to the NCHW layout, while TensorFlow defaults to NHWC. This repo studies the convolutional layer's performance under NCHW and NHWC layouts. The convolutional layer is composed of [im2col](https://caffe.berkeleyvision.org/tutorial/convolution.html) and [GEMM](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3). Since optimized GEMM can approach the CPU's peak performance in most cases, the main focus of this study is im2col. The test devices are a RPi 4B and a VPS with the Intel Xeon Platinum processor. This repo was inspired by [this discussion](https://github.com/Avafly/tiny-cnn/issues/1).
 
-TL;DR: For CPU inference, the convolutional layer under NHWC layout is faster in most cases, and the benefit is bigger with more channels.
+TL;DR: For CPU inference, the convolutional layer under NHWC layout may be faster in most cases, and the benefit is bigger with more channels.
 
 ## How to run
 
@@ -29,7 +29,6 @@ Kernel size = 3, stride = 1, padding = 0.
 |      (128, 80, 80)       |  38.86 ms \| 31.92 ms   |   10.68 ms \| 6.39 ms    |
 |                          |                         |                          |
 |      (8, 320, 320)       |  39.28 ms \| 42.24 ms   |    10.1 ms \| 7.99 ms    |
-|      (32, 320, 320)      | 158.75 ms \| 153.55 ms  |   46.45 ms \| 32.73 ms   |
 |      (64, 320, 320)      | 316.88 ms \| 287.20 ms  |   93.07 ms \| 64.85 ms   |
 |     (128, 320, 320)      | 628.09 ms \| 541.26 ms  |  186.13 ms \| 134.85 ms  |
 
@@ -48,7 +47,3 @@ In `conv_layers.c`, the convolutional layers for both NCHW and NHWC layouts are 
 | Input shape: (3, 640, 640), k=6, s=2, p=2, c=64   | 147.65 ms \| 164.38 ms  |  48.11 ms \| 53.24 ms  |
 
 `conv_layers.c` also saves the results to binary files. Running `torch_test.py` can verify the computation results.
-
-## Additional notes
-
-This repo was inspired by [this discussion](https://github.com/Avafly/tiny-cnn/issues/1). The code is intended for exploring performance differences between various layouts. For production applications, I recommend using well-tested inference frameworks like [ncnn](https://github.com/Tencent/ncnn) and [OnnxRuntime](https://onnxruntime.ai/), which offer more optimizations for different scenarios.
